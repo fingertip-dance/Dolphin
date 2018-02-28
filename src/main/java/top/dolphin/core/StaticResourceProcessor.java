@@ -1,6 +1,7 @@
 package top.dolphin.core;
 
-import java.io.IOException;
+import top.dolphin.connector.http.HttpRequest;
+import top.dolphin.connector.http.HttpResponse;
 
 /**
  * Created by Cyanqi Guan
@@ -12,9 +13,9 @@ import java.io.IOException;
 public class StaticResourceProcessor {
 
     //handle
-    public void process(Request request, Response response) {
+    public void process(HttpRequest request, HttpResponse response) {
         try {
-            response.responseToPage();
+            response.sendStaticResource();
         }catch (Exception e) {
             e.printStackTrace();
         }

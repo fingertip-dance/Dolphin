@@ -1,4 +1,4 @@
-package top.dolphin.core;
+package top.dolphin.connector;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletResponse;

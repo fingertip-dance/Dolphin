@@ -1,4 +1,4 @@
-package top.dolphin.core;
+package top.dolphin.connector;
 
 import top.dolphin.constant.Constants;
 

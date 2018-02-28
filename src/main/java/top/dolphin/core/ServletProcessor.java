@@ -1,10 +1,12 @@
 package top.dolphin.core;
 
+import top.dolphin.connector.http.HttpRequest;
+import top.dolphin.connector.http.HttpRequestFacade;
+import top.dolphin.connector.http.HttpResponse;
+import top.dolphin.connector.http.HttpResponseFacade;
 import top.dolphin.constant.Constants;
 
 import javax.servlet.Servlet;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -21,31 +23,26 @@ import java.net.URLStreamHandler;
  */
 public class ServletProcessor {
 
-    public void process(Request request, Response response) {
+    public void process(HttpRequest request, HttpResponse response) {
 
-        //get servletName
-        String uri = request.getUri();
+        //get servlet name
+        String uri = request.getRequestURI();
         String servletName = uri.substring(uri.lastIndexOf("/") + 1);
 
-        //to load Servlet file
+        //classloader
         URLClassLoader loader = null;
-
         try {
-            //locate servlet file
+            // create a URLClassLoader
             URL[] urls = new URL[1];
             URLStreamHandler streamHandler = null;
             File classPath = new File(Constants.WEB_ROOT);
-            // the forming of repository is taken from the createClassLoader method in
             String repository = (new URL("file", null, classPath.getCanonicalPath() + File.separator)).toString() ;
-            // the code for forming the URL is taken from the addRepository method in
             urls[0] = new URL(null, repository, streamHandler);
-            // create a URLClassLoader
             loader = new URLClassLoader(urls);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.toString() );
         }
-        //servlet class
         Class myClass = null;
         try {
             myClass = loader.loadClass(servletName);
@@ -55,11 +52,13 @@ public class ServletProcessor {
         }
 
         Servlet servlet = null;
-        RequestFacade requestFacade = new RequestFacade(request);
-        ResponseFacade responseFacade = new ResponseFacade(response);
+
         try {
             servlet = (Servlet) myClass.newInstance();
-            servlet.service((ServletRequest) request, (ServletResponse) response);
+            HttpRequestFacade requestFacade = new HttpRequestFacade(request);
+            HttpResponseFacade responseFacade = new HttpResponseFacade(response);
+            servlet.service(requestFacade, responseFacade);
+            ((HttpResponse) response).finishResponse();
         }
         catch (Exception e) {
             System.out.println(e.toString());
@@ -67,6 +66,5 @@ public class ServletProcessor {
         catch (Throwable e) {
             System.out.println(e.toString());
         }
-
     }
 }
